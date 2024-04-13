@@ -5,6 +5,8 @@ from PyQt5.QtGui import QPixmap
 import random
 
 class Ui_SecondaryWindows(object):
+
+
     def Menu(self, MainWindow):     #Окно меню
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -136,7 +138,9 @@ class Ui_SecondaryWindows(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Поле чудес"))
         self.label_3.setText(_translate("MainWindow", "Правила игры"))
-        self.label_2.setText(_translate("MainWindow", "<html><head/><body><p align=\"justify\"><span style=\" font-size:18pt;\">В начале игры будет выбрана случайная категория и будет загадано слово, относящееся к выбранной категории. Ваша задача: отгадать загаданное слово первее соперников. Если вы или соперник отгадали букву, она отобразиться в загаданном слове на своём месте. Если же была указана неправильная буква, то ход переходит следующему участнику. Игра будет продолжаться пока слово не будет отгадано. Так же у вас будет возможность один раз за игру воспользоваться подсказкой. Приятной игры!</span></p><p align=\"justify\"><span style=\" font-size:18pt;\"><br/></span></p></body></html>"))
+        self.label_2.setStyleSheet('font:22pt')
+        self.label_2.setAlignment(QtCore.Qt.AlignJustify)
+        self.label_2.setText(_translate("MainWindow", "В начале игры будет выбрана случайная категория и будет загадано слово, относящееся к выбранной категории. Ваша задача: отгадать загаданное слово первее соперников. Если вы или соперник отгадали букву, она отобразиться в загаданном слове на своём месте. Если же была указана неправильная буква, то ход переходит следующему участнику. Игра будет продолжаться пока слово не будет отгадано. Так же у вас будет возможность один раз за игру воспользоваться подсказкой. Приятной игры!"))
         self.main_menu.setText(_translate("MainWindow", "На главное меню"))
         self.main_menu.clicked.connect(self.to_the_main_menu)
 
@@ -402,7 +406,36 @@ class Ui_SecondaryWindows(object):
         self.label_4.setPixmap(self.scaled_pixmap2)
         app.setStyleSheet('#label_2, #label_4{ border: 1px solid black}; #label{ font-size: 26pt}')
 
+    def random_word(self):
+        words = ["программа", "енисей", "египет", "кодинг"]
+        return random.choice(words)
 
+    def display_word(self, word, guessed_letters):
+        display = ""
+        for letter in word:
+            if letter in guessed_letters:
+                display += letter
+            else:
+                display += "*"
+        return display
+
+    def update_word(self):
+        self.secret_word = self.random_word()
+        self.guessed_letters = []
+        self.word_parts = self.display_word(self.secret_word, self.guessed_letters)
+        for i, part in enumerate(self.word_parts):
+            self.label_word.setText(part)
+
+    def guess_letter(self, letter):
+        if letter in self.guessed_letters:
+            print("Вы уже вводили эту букву. Попробуйте другую.")
+        else:
+            self.guessed_letters.append(letter)
+            if letter in self.secret_word:
+                print("Вы угадали букву!")
+            else:
+                print("Вы не угадали букву.")
+            self.update_word()
 
                 ####################### ЛОГИКА ИГРЫ ########################
 
