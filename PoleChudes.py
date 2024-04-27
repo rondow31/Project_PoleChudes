@@ -1,14 +1,24 @@
 import PyQt5
 from PyQt5 import QtCore, QtWidgets, QtGui
-from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QApplication, QDesktopWidget
 from PyQt5.QtGui import QPixmap
+from generation_word import word_categories
 import random
 
+class CenteredWindow(QtWidgets.QMainWindow):
+    def center(self):
+        geometry = self.frameGeometry()
+        center_position = QtWidgets.QDesktopWidget().availableGeometry().center()
+        geometry.moveCenter(center_position)
+        self.move(geometry.topLeft())
 class Ui_SecondaryWindows(object):
 
+    def __init__(self):
+        self.MainWindow = MainWindow
+        self.random_word = ""
 
     def Menu(self, MainWindow):     #Окно меню
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
+        self.centralwidget = QtWidgets.QWidget(self.MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout_4 = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout_4.setObjectName("gridLayout_4")
@@ -66,17 +76,18 @@ class Ui_SecondaryWindows(object):
 
     def retranslateUi_Menu(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
+        MainWindow = self.MainWindow
         MainWindow.setWindowTitle(_translate("MainWindow", "Поле чудес"))
         self.label.setText(_translate("MainWindow", "Поле чудес"))
         self.Rules_Button.setText(_translate("MainWindow", "Правила игры"))
-        self.Rules_Button.clicked.connect(self.Rules)
+        self.Rules_Button.clicked.connect(self.rules)
         self.Play_Button.setText(_translate("MainWindow", "Новая игра"))
         self.Play_Button.clicked.connect(self.game)
         self.Exit_Button.setText(_translate("MainWindow", "Выйти из игры"))
         self.Exit_Button.clicked.connect(self.exit_game)
 
-    def Rules(self):     #Окно правил
-        self.centralwidget_2 = QtWidgets.QWidget(MainWindow)
+    def Rules(self, MainWindow):     #Окно правил
+        self.centralwidget_2 = QtWidgets.QWidget(self.MainWindow)
         self.centralwidget_2.setObjectName("centralwidget_2")
         self.gridLayout_6 = QtWidgets.QGridLayout(self.centralwidget_2)
         self.gridLayout_6.setObjectName("gridLayout_6")
@@ -136,6 +147,7 @@ class Ui_SecondaryWindows(object):
 
     def retranslateUi_Rules(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
+        MainWindow = self.MainWindow
         MainWindow.setWindowTitle(_translate("MainWindow", "Поле чудес"))
         self.label_3.setText(_translate("MainWindow", "Правила игры"))
         self.label_2.setStyleSheet('font:22pt')
@@ -145,7 +157,7 @@ class Ui_SecondaryWindows(object):
         self.main_menu.clicked.connect(self.to_the_main_menu)
 
     def Win(self, MainWindow):
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
+        self.centralwidget = QtWidgets.QWidget(self.MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
@@ -205,6 +217,7 @@ class Ui_SecondaryWindows(object):
 
     def retranslateUi_win(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
+        MainWindow = self.MainWindow
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.label.setText(_translate("MainWindow", "Вы отгадали слово!"))
         self.pushButton.setText(_translate("MainWindow", "Новая игра"))
@@ -213,7 +226,7 @@ class Ui_SecondaryWindows(object):
         self.pushButton_2.clicked.connect(self.to_the_main_menu)
 
     def Lose(self, MainWindow):
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
+        self.centralwidget = QtWidgets.QWidget(self.MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
@@ -273,6 +286,7 @@ class Ui_SecondaryWindows(object):
 
     def retranslateUi_lose(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
+        MainWindow = self.MainWindow
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.label.setText(_translate("MainWindow", "Повезёт в следующий раз!"))
         self.pushButton.setText(_translate("MainWindow", "Новая игра"))
@@ -286,11 +300,14 @@ class Ui_SecondaryWindows(object):
     def to_the_main_menu(self):
         self.Menu(MainWindow)
 
+    def rules(self):
+        self.Rules(MainWindow)
+
     def game(self):
         self.GameWindow(MainWindow)
 
     def GameWindow(self, MainWindow):     #Игровое окно
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
+        self.centralwidget = QtWidgets.QWidget(self.MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
@@ -373,10 +390,13 @@ class Ui_SecondaryWindows(object):
         self.gridLayout_3.setObjectName("gridLayout_3")
         font = QtGui.QFont()
         font.setPointSize(28)
+        self.label_category = QtWidgets.QLabel(self.frame_2)
+        self.label_category.setFont(font)
+        self.gridLayout_3.addWidget(self.label_category, 0, 0, 0, 0, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop)
         self.label_word = QtWidgets.QLabel(self.frame_2)
         self.label_word.setFont(font)
         self.label_word.setObjectName("label_word")
-        self.gridLayout_3.addWidget(self.label_word, 0, 0, 1, 1, QtCore.Qt.AlignHCenter|QtCore.Qt.AlignVCenter)
+        self.gridLayout_3.addWidget(self.label_word, 0, 0, 0, 0, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignBottom)
         self.horizontalLayout.addLayout(self.gridLayout_3)
         self.gridLayout_2.addWidget(self.frame_2, 0, 0, 1, 3)
         self.frame_6 = QtWidgets.QFrame(self.frame)
@@ -390,61 +410,54 @@ class Ui_SecondaryWindows(object):
 
     def retranslateUi_game(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
+        MainWindow = self.MainWindow
         MainWindow.setWindowTitle(_translate("MainWindow", "Поле чудес"))
         self.label_2.setText(_translate("MainWindow", "TextLabel"))
         self.label_3.setText(_translate("MainWindow", "Игрок"))
         self.label_4.setText(_translate("MainWindow", "TextLabel"))
         self.label_5.setText(_translate("MainWindow", "Ведущий"))
-        self.label_word.setText(_translate("MainWindow", "Слово"))
-        pixmap1 = QPixmap('картинки\аватар.jpg')
+        pixmap1 = QPixmap('картинки/аватар.jpg')
         self.label_2.setPixmap(pixmap1)
         self.scaled_pixmap1 = pixmap1.scaled(250, 200)
         self.label_2.setPixmap(self.scaled_pixmap1)
-        pixmap2 = QPixmap('картинки\ведущий.jpeg')
+        pixmap2 = QPixmap('картинки/ведущий.jpeg')
         self.label_4.setPixmap(pixmap2)
         self.scaled_pixmap2 = pixmap2.scaled(250, 200)
         self.label_4.setPixmap(self.scaled_pixmap2)
         app.setStyleSheet('#label_2, #label_4{ border: 1px solid black}; #label{ font-size: 26pt}')
 
-    def random_word(self):
-        words = ["программа", "енисей", "египет", "кодинг"]
-        return random.choice(words)
+        # Выбор случайной категории
+        self.random_category = random.choice(list(word_categories.keys()))
+        self.label_category.setText(f"<center><span style='font-size: 32pt;'>выбранная категория:</span><br/><span style='font-size: 32pt;'>{self.random_category}</span></center>")
 
-    def display_word(self, word, guessed_letters):
-        display = ""
-        for letter in word:
-            if letter in guessed_letters:
-                display += letter
-            else:
-                display += "*"
-        return display
 
-    def update_word(self):
-        self.secret_word = self.random_word()
-        self.guessed_letters = []
-        self.word_parts = self.display_word(self.secret_word, self.guessed_letters)
-        for i, part in enumerate(self.word_parts):
-            self.label_word.setText(part)
+        # Выбор случайного слова из выбранной категории
+        self.random_word = random.choice(word_categories[self.random_category])
+        self.hidden_word_display = list("*" * len(self.random_word))
 
-    def guess_letter(self, letter):
-        if letter in self.guessed_letters:
-            print("Вы уже вводили эту букву. Попробуйте другую.")
-        else:
-            self.guessed_letters.append(letter)
-            if letter in self.secret_word:
-                print("Вы угадали букву!")
-            else:
-                print("Вы не угадали букву.")
-            self.update_word()
+        # Установка скрытого слова в QLabel
+        self.label_word.setText(' '.join(self.hidden_word_display))
 
-                ####################### ЛОГИКА ИГРЫ ########################
+    def keyPressEvent(self, event):
+        key = event.text().upper()
+        if key.isalpha() and len(key) == 1:
+            key = key.lower()
+            if key in self.random_word:
+                for i in range(len(self.random_word)):
+                    if self.random_word[i] == key:
+                        self.hidden_word_display[i] = key
+                # Обновляем текст загаданного слова
+                self.label_word.setText(' '.join(self.hidden_word_display))
+
+
+
 
 if __name__ == "__main__":
     import sys
-    app = QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    MainWindow.resize(1100, 900)
-    MainWindow.setMinimumSize(720, 480)
+    app = QtWidgets.QApplication(sys.argv)
+    MainWindow = CenteredWindow()
+    MainWindow.resize(3000, 3000)
+    MainWindow.setMinimumSize(920, 680)
     ui = Ui_SecondaryWindows()
     ui.Menu(MainWindow)
     MainWindow.show()
