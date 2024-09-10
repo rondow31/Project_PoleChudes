@@ -1,23 +1,27 @@
 import PyQt5
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import QTimer
-from PyQt5.QtWidgets import QApplication, QMainWindow
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox,  QStackedWidget
+from PyQt5.QtGui import QPixmap, QIcon
 from generation_word import word_categories
+from dictionary import word_categories_dictionary
+from PyQt5.QtGui import QIcon
 import random
 
 class Ui_SecondaryWindows(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.setWindowIcon(QIcon('картинки/иконка.jpg'))
+        self.setStyleSheet("background-color: lightblue;")
         self.random_word = "" #случайно выбранное слово
-        self.hidden_word_display = []   #Отображение слова пользователю
-        self.guessed_letters = []       #Список отгаданных букв
-        self.input_locked = False
+        self.hidden_word_display = []   #стображение слова пользователю
+        self.guessed_letters = []       #список использованных букв
+        self.guessed_letters_in_word = []    #список отгаданных букв
         self.timer_host = QTimer(self)
         self.timer_host.setSingleShot(True)
         self.timer_host.timeout.connect(self.clear_label_host)
 
-    def Menu(self):
+    def Menu(self):   #окно меню
         self.centralwidget = QtWidgets.QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout_4 = QtWidgets.QGridLayout(self.centralwidget)
@@ -85,7 +89,7 @@ class Ui_SecondaryWindows(QMainWindow):
         self.Exit_Button.setText(_translate("MainWindow", "Выйти из игры"))
         self.Exit_Button.clicked.connect(self.exit_game)
 
-    def Rules(self):     # Окно правил
+    def Rules(self):     # окно правил
         self.centralwidget_2 = QtWidgets.QWidget(self)
         self.centralwidget_2.setObjectName("centralwidget_2")
         self.gridLayout_6 = QtWidgets.QGridLayout(self.centralwidget_2)
@@ -150,7 +154,7 @@ class Ui_SecondaryWindows(QMainWindow):
         self.label_3.setText(_translate("MainWindow", "Правила игры"))
         self.label_2.setStyleSheet('font:22pt')
         self.label_2.setAlignment(QtCore.Qt.AlignJustify)
-        self.label_2.setText(_translate("MainWindow", "В начале игры будет выбрана случайная категория и будет загадано слово, относящееся к выбранной категории. Ваша задача: отгадать загаданное слово первее соперников. Если вы или соперник отгадали букву, она отобразится в загаданном слове на своём месте. Если же была указана неправильная буква, то ход переходит следующему участнику. Игра будет продолжаться, пока слово не будет отгадано. Так же у вас будет возможность один раз за игру воспользоваться подсказкой. Приятной игры!"))
+        self.label_2.setText(_translate("MainWindow", "В начале игры будет выбрана случайная категория и будет загадано слово, относящееся к выбранной категории. Ваша задача: отгадать загаданное слово первее соперников(все слова написаны в именительном падеже). Если вы или соперник отгадали букву, она отобразится в загаданном слове на своём месте. Если же была указана неправильная буква, то ход переходит следующему участнику. Игра будет продолжаться, пока слово не будет отгадано. Так же у вас будет возможность один раз за игру воспользоваться подсказкой. Приятной игры!"))
         self.main_menu.setText(_translate("MainWindow", "На главное меню"))
         self.main_menu.clicked.connect(self.to_the_main_menu)
 
@@ -212,6 +216,7 @@ class Ui_SecondaryWindows(QMainWindow):
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
         self.setCentralWidget(self.centralwidget)
         self.retranslateUi_win()
+        QtCore.QMetaObject.connectSlotsByName(self)
 
     def retranslateUi_win(self):
         _translate = QtCore.QCoreApplication.translate
@@ -280,6 +285,7 @@ class Ui_SecondaryWindows(QMainWindow):
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
         self.setCentralWidget(self.centralwidget)
         self.retranslateUi_lose()
+        QtCore.QMetaObject.connectSlotsByName(self)
 
     def retranslateUi_lose(self):
         _translate = QtCore.QCoreApplication.translate
@@ -302,7 +308,13 @@ class Ui_SecondaryWindows(QMainWindow):
     def game(self):
         self.GameWindow()
 
-    def GameWindow(self):     # Игровое окно
+    def win(self):
+        self.Win()
+
+    def lose(self):
+        self.Lose()
+
+    def GameWindow(self):     # игровое окно
         self.centralwidget = QtWidgets.QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
@@ -328,7 +340,7 @@ class Ui_SecondaryWindows(QMainWindow):
         self.verticalLayout.addWidget(self.label_2)
         self.label_3 = QtWidgets.QLabel(self.frame_3)
         font = QtGui.QFont()
-        font.setPointSize(16)
+        font.setPointSize(14)
         self.label_3.setFont(font)
         self.label_3.setMaximumSize(QtCore.QSize(16777215, 25))
         self.label_3.setObjectName("label_3")
@@ -350,7 +362,7 @@ class Ui_SecondaryWindows(QMainWindow):
         self.verticalLayout_3.addWidget(self.label_4)
         self.label_5 = QtWidgets.QLabel(self.frame_4)
         font = QtGui.QFont()
-        font.setPointSize(16)
+        font.setPointSize(14)
         self.label_5.setFont(font)
         self.label_5.setMaximumSize(QtCore.QSize(16777215, 25))
         self.label_5.setObjectName("label_5")
@@ -365,14 +377,10 @@ class Ui_SecondaryWindows(QMainWindow):
         self.gridLayout_5.setObjectName("gridLayout_5")
         self.gridLayout_4 = QtWidgets.QGridLayout()
 
-        alphabet_ru = [chr(i) for i in range(1040, 1072)] # Создание алфавита
-        alphabet_ru.insert(6, chr(1025))           # Добавление буквы Ё
-        for i in  range(3):                               # Создание массива 3х11
-            for j in range(11):
-                btn = QtWidgets.QPushButton()             # Создание кнопок
-                btn.setText(alphabet_ru[i * 11 + j])      # Заполнение кнопок соответствующей буквой
-                btn.clicked.connect(self.button_clicked)
-                self.gridLayout_4.addWidget(btn,i,j)      # Отображение заполненных кнопок
+        # создание алфавита
+        self.alphabet = [chr(i) for i in range(1040, 1072)]
+        self.alphabet.insert(6, chr(1025))
+        self.create_keyboard()
 
         self.gridLayout_4.setObjectName("gridLayout_4")
         self.gridLayout_5.addLayout(self.gridLayout_4, 0, 0, 1, 1)
@@ -396,6 +404,7 @@ class Ui_SecondaryWindows(QMainWindow):
         self.label_host.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignBottom)
         self.gridLayout_2.addWidget(self.label_host, 1, 2, 1, 1)
         self.label_category = QtWidgets.QLabel(self.frame_2)
+        self.label_category.setWordWrap(True)
         self.label_category.setFont(font)
         self.gridLayout_3.addWidget(self.label_category, 0, 0, 0, 0, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop)
         self.label_word = QtWidgets.QLabel(self.frame_2)
@@ -410,8 +419,20 @@ class Ui_SecondaryWindows(QMainWindow):
         self.frame_6.setObjectName("frame_6")
         self.gridLayout_2.addWidget(self.frame_6, 1, 1, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
+        self.button_frame = QtWidgets.QFrame(self.frame)
+        self.button_frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.button_frame.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.button_layout = QtWidgets.QHBoxLayout(self.button_frame)
+        self.button_help = QtWidgets.QPushButton("подсказка", self.button_frame)
+        self.button_help.setFixedSize(80, 50)
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        self.button_help.setFont(font)
+        self.button_layout.addWidget(self.button_help)
+        self.gridLayout_2.addWidget(self.button_frame, 0, 2, 1, 1, QtCore.Qt.AlignTop | QtCore.Qt.AlignRight)
         self.setCentralWidget(self.centralwidget)
         self.retranslateUi_game()
+        QtCore.QMetaObject.connectSlotsByName(self)
 
     def retranslateUi_game(self):
         _translate = QtCore.QCoreApplication.translate
@@ -428,105 +449,300 @@ class Ui_SecondaryWindows(QMainWindow):
         self.label_4.setPixmap(pixmap2)
         self.scaled_pixmap2 = pixmap2.scaled(250, 200)
         self.label_4.setPixmap(self.scaled_pixmap2)
+        self.button_help.clicked.connect(self.hint)
         app.setStyleSheet('#label_2, #label_4{ border: 1px solid black}; #label{ font-size: 26pt}')
 
-        # Выбор случайной категории
+        # выбор случайной подсказки
         self.random_category = random.choice(list(word_categories.keys()))
         self.label_category.setText(f"<center><span style='font-size: 28pt;'>{self.random_category}</span></center>")
 
-        # Выбор случайного слова из выбранной категории
+        # выбор слова из выбранной подсказки
+        self.hidden_word_display.clear()
         self.random_word = random.choice(word_categories[self.random_category])
         self.hidden_word_display = list("_" * len(self.random_word))
 
-        # Установка скрытого слова в QLabel
-        self.label_word.setText(' '.join(self.hidden_word_display))
+        self.label_word.setText(' '.join(self.hidden_word_display))  # установка скрытого слова в label
 
-    def button_clicked(self):
-        button = self.sender()  # Получаем отправителя сигнала - кнопку, которая была нажата
+        self.input_locked = False
+        self.guessed_letters.clear()
+        self.guessed_letters_in_word.clear()
+
+    def create_keyboard(self):
+        for i in range(3):
+            for j in range(11):
+                btn = QtWidgets.QPushButton()
+                btn.setText(self.alphabet[i * 11 + j])
+                btn.clicked.connect(self.button_clicked)
+                self.gridLayout_4.addWidget(btn, i, j)
+
+    def button_clicked(self):   #функция для обработки нажатия кнопок на виртуальной клавиатуре
+        button = self.sender()  # кнопка, которая была нажата
         if self.input_locked:
             return
         if button:
+            self.label_host.clear()
             self.input_locked = True
-            QTimer.singleShot(7000, self.unlock_input)
+            button.setEnabled(False)
             letter = button.text().lower()
             self.user_letter(letter)
+            self.guessed_letters.append(letter)
             QTimer.singleShot(6000, self.clear_label_player)
-            if letter not in self.guessed_letters:
-                if letter in self.random_word:
-                    self.guessed_letters.append(letter)
-                    QTimer.singleShot(2500, lambda: (self.there_letter(), QTimer.singleShot(3500, self.clear_label_host)))
-                    QTimer.singleShot(5000, lambda: (self.there_letter(), self.update_hidden_word_delayed(letter)))
-                else:
-                    QTimer.singleShot(3000, lambda: (self.there_no_letter(), QTimer.singleShot(3000, self.clear_label_host)))
+            if letter in self.random_word:
+                self.result = 1
+                QTimer.singleShot(6500, self.unlock_input)
+                QTimer.singleShot(2500, lambda: (self.there_letter(), QTimer.singleShot(3500, self.clear_label_host)))
+                QTimer.singleShot(5000, lambda: (self.there_letter(), self.update_hidden_word_delayed(letter)))
+                self.guessed_letters_in_word.append(letter)
             else:
-                QTimer.singleShot(3000, lambda: (self.letter_used(), QTimer.singleShot(3000, self.clear_label_host)))
+                self.result = 0
+                QTimer.singleShot(3000, lambda: (self.there_no_letter(), QTimer.singleShot(3000, self.clear_label_host)))
+                self.input_locked = True
+                QTimer.singleShot(7000, self.first_bot)
+                QTimer.singleShot(8000, self.guess_letter_one)
 
-    def keyPressEvent(self, event):
+    def keyPressEvent(self, event):      #функция обработки нажатия клавишь на клавиатуре
         if self.input_locked:
             return
-        key = event.text().lower()
-        if key.isalpha() and len(key) == 1:
+        letter = event.text().lower()
+        if event.key() == 16777216:  # Код клавиши Esc
+            self.show_modal()
+        if letter in self.guessed_letters:
+            return
+        if letter.isalpha() and len(letter) == 1:
+            self.label_host.clear()
             self.input_locked = True
-            QTimer.singleShot(7000, self.unlock_input)
-            self.user_letter(key)
+            self.user_letter(letter)
+            self.guessed_letters.append(letter)
+            button = self.find_button_by_letter(letter)
+            if button:
+                self.clear_keyboard(button)
             QTimer.singleShot(6000, self.clear_label_player)
-            if key not in self.guessed_letters:
-                if key in self.random_word:
-                    self.guessed_letters.append(key)
-                    QTimer.singleShot(2500, lambda: (self.there_letter(), QTimer.singleShot(3500, self.clear_label_host)))
-                    QTimer.singleShot(5000, lambda: (self.there_letter(), self.update_hidden_word_delayed(key)))
-                else:
-                    QTimer.singleShot(3000, lambda: (self.there_no_letter(), QTimer.singleShot(3000, self.clear_label_host)))
+            if letter in self.random_word:
+                self.result = 1
+                QTimer.singleShot(6500, self.unlock_input)
+                QTimer.singleShot(2500, lambda: (self.there_letter(), QTimer.singleShot(3500, self.clear_label_host)))
+                QTimer.singleShot(5000, lambda: (self.there_letter(), self.update_hidden_word_delayed(letter)))
+                self.guessed_letters_in_word.append(letter)
             else:
-                QTimer.singleShot(3000, lambda: (self.letter_used(), QTimer.singleShot(3000, self.clear_label_host)))
+                self.result = 0
+                QTimer.singleShot(3000, lambda: (self.there_no_letter(), QTimer.singleShot(3000, self.clear_label_host)))
+                self.input_locked = True
+                QTimer.singleShot(8000, self.guess_letter_one)
+                QTimer.singleShot(7000, self.first_bot)
 
-    def update_hidden_word_delayed(self, key):
+    def clear_keyboard(self,button):
+        button.setEnabled(False)
+
+    def find_button_by_letter(self, letter):
+        for i in range(3):
+            for j in range(11):
+                button = self.gridLayout_4.itemAtPosition(i, j).widget()
+                if button and button.text().lower() == letter:
+                    return button
+        return None
+
+    def guess_letter_one(self):   #Работа первого бота
+        if "_" not in self.hidden_word_display:
+            return
+        self.guess_letters()
+        possible_words = self.get_possible_words(self.label_word.text().replace(' ', ''))
+        chance = random.randint(1,9)
+        if possible_words:
+            if len(self.random_word) <= 6 and len(list(set(self.random_word))) - len(self.guessed_letters_in_word) <= 1:
+                random_word = random.choice(possible_words)
+                letter = random.choice(random_word)
+            elif len(self.random_word) > 6 and len(self.random_word) <= 8 and len(list(set(self.random_word))) - len(self.guessed_letters_in_word) <= 2:
+                random_word = random.choice(possible_words)
+                letter = random.choice(random_word)
+            elif len(self.random_word) > 8 and len(list(set(self.random_word))) - len(self.guessed_letters_in_word) <= 3:
+                random_word = random.choice(possible_words)
+                letter = random.choice(random_word)
+            elif chance in range(1,5):
+                random_word = random.choice(possible_words)
+                letter = random.choice(random_word)
+            else:
+                letter = random.choice(self.alphabet).lower()
+        if letter in self.guessed_letters:
+            QTimer.singleShot(100, self.guess_letter_one)
+            return
+        self.user_letter(letter)
+        self.guessed_letters.append(letter)
+        button = self.find_button_by_letter(letter)
+        if button:
+            self.clear_keyboard(button)
+        QTimer.singleShot(6000, self.clear_label_player)
+        if letter in self.random_word:
+            QTimer.singleShot(2500, lambda: (self.there_letter(), QTimer.singleShot(3500, self.clear_label_host)))
+            QTimer.singleShot(5000, lambda: (self.there_letter(), self.update_hidden_word_delayed(letter)))
+            QTimer.singleShot(8000, self.guess_letter_one)
+            self.guessed_letters_in_word.append(letter)
+        else:
+            QTimer.singleShot(3000, lambda: (self.there_no_letter(), QTimer.singleShot(3000, self.clear_label_host)))
+            QTimer.singleShot(8000, self.guess_letter_two)
+            QTimer.singleShot(7000, self.second_bot)
+
+    def guess_letter_two(self):  #Работа второго бота
+        if "_" not in self.hidden_word_display:
+            return
+        self.guess_letters()
+        possible_words = self.get_possible_words(self.label_word.text().replace(' ', ''))
+        chance = random.randint(1,9)
+        if possible_words:
+            if len(self.random_word) <= 6 and len(list(set(self.random_word))) - len(self.guessed_letters_in_word) <= 1:
+                random_word = random.choice(possible_words)
+                letter = random.choice(random_word)
+            elif len(self.random_word) > 6 and len(self.random_word) <= 8 and len(list(set(self.random_word))) - len(self.guessed_letters_in_word) <= 2:
+                random_word = random.choice(possible_words)
+                letter = random.choice(random_word)
+            elif len(self.random_word) > 8 and len(list(set(self.random_word))) - len(self.guessed_letters_in_word) <= 3:
+                random_word = random.choice(possible_words)
+                letter = random.choice(random_word)
+            elif chance in range(1,4):
+                random_word = random.choice(possible_words)
+                letter = random.choice(random_word)
+            else:
+                letter = random.choice(self.alphabet).lower()
+        if letter in self.guessed_letters:
+            QTimer.singleShot(100, self.guess_letter_two)
+            return
+        self.user_letter(letter)
+        self.guessed_letters.append(letter)
+        button = self.find_button_by_letter(letter)
+        if button:
+            self.clear_keyboard(button)
+        QTimer.singleShot(6000, self.clear_label_player)
+        if letter in self.random_word:
+            QTimer.singleShot(2500, lambda: (self.there_letter(), QTimer.singleShot(3500, self.clear_label_host)))
+            QTimer.singleShot(5000, lambda: (self.there_letter(), self.update_hidden_word_delayed(letter)))
+            QTimer.singleShot(8000, self.guess_letter_two)
+            self.guessed_letters_in_word.append(letter)
+        else:
+            QTimer.singleShot(3000, lambda: (self.there_no_letter(), QTimer.singleShot(3000, self.clear_label_host)))
+            QTimer.singleShot(7000, self.unlock_input)
+
+    def update_hidden_word_delayed(self, letter):   # обновляем отображаемый пользователю текст загаданного слова
         for i in range(len(self.random_word)):
-            if self.random_word[i] == key:
-                self.hidden_word_display[i] = key
-        # Обновляем текст загаданного слова
+            if self.random_word[i] == letter:
+                self.hidden_word_display[i] = letter
         self.label_word.setText(' '.join(self.hidden_word_display))
+        self.player_win()
+        self.player_lose()
 
-    def user_letter(self, letter):
-        self.chosen_letter = f"Буква \"{letter}\"!"
+    def player_win(self):
+        if "_" not in self.hidden_word_display and self.result == 1:
+            QTimer.singleShot(3500, self.win)
+
+    def player_lose(self):
+        if "_" not in self.hidden_word_display and self.result == 0:
+            self.label_player.clear()
+            self.label_host.clear()
+            QTimer.singleShot(3500, self.lose)
+
+    def guess_letters(self):     #создание шаблона слова для дальнейшей работы с ним
+        pattern = self.label_word.text().replace(' ','')
+        possible_words = self.get_possible_words(pattern)
+
+    def get_possible_words(self, pattern):    #создаём список подходящих под щаблон слов
+        dictionary = word_categories_dictionary
+        possible_words = []
+
+        for word in dictionary:
+            if len(word) == len(pattern) and self.matches_pattern(word, pattern):
+                possible_words.append(word)
+
+        return possible_words
+
+    def matches_pattern(self, word, pattern):   #сравниваем буквы шаблона с буквами из словаря
+        for w_char, p_char in zip(word, pattern):
+            if p_char != '_' and w_char != p_char:
+                return False
+        return True
+
+    def user_letter(self, letter):   #Буква выбранная игроком/ботом
+        self.chosen_letter = f"Буква \"{letter}\""
         self.label_player.setText(self.chosen_letter)
 
-    def there_no_letter(self):
+    def there_no_letter(self):   #Выбранной буквы нет в слове
         self.absent = f"Нет такой \n буквы"
         self.label_host.setText(self.absent)
 
-    def there_letter(self):
+    def there_letter(self):   #Выбранная буква есть в слове
         self.present = f"Откройте!"
         self.label_host.setText(self.present)
 
-    def letter_used(self):
-        self.using = f"Буква уже\nесть в слове"
-        self.label_host.setText(self.using)
-
-    def unlock_input(self):
+    def unlock_input(self):   #Разрешение игроку выбирать букву
         self.input_locked = False
+        self.player = f"Игрок"
+        self.label_3.setText(self.player)
 
-    def clear_label_host(self):
+    def clear_label_host(self):  #Очищение ответа ведущего
         self.label_host.clear()
 
-    def clear_label_player(self):
+    def clear_label_player(self):  #Очищение ответа игрока/бота
         self.label_player.clear()
 
+    def first_bot(self):   #Ходит первый компьютер
+
+        self.first = f"Первый компьютер"
+        self.label_3.setText(self.first)
+
+    def second_bot(self):   #Ходит второй компьютер
+        self.second = f"Второй компьютер"
+        self.label_3.setText(self.second)
+
+    def hint(self):   #подсказка игроку
+        if self.input_locked:
+            return
+        unopened_letters = set(self.random_word) - set(self.guessed_letters_in_word)
+        if unopened_letters:
+            letter = random.choice(list(unopened_letters))
+            self.help = f"Назовите \n букву \"{letter}\""
+            self.label_host.setText(self.help)
+            self.button_help.setEnabled(False)
+
+    def show_modal(self):
+        msg_box = QMessageBox(self)
+        msg_box.setWindowTitle('Пауза')
+        msg_box.setText('Вы хотите вернуться в главное меню?')
+        msg_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+
+        # Меняем текст кнопок после установки стандартных кнопок
+        yes_button = msg_box.button(QMessageBox.Yes)
+        yes_button.setText("Продолжить")
+
+        no_button = msg_box.button(QMessageBox.No)
+        no_button.setText("Главное меню")
+
+        response = msg_box.exec_()
+        if response == QMessageBox.No:
+            # Создаем экземпляры окон
+            self.menu = self.Menu()
+            self.gamewindow = self.GameWindow()
+            self.
+
+            class changer_page(QStackedWidget):
+                def __init__(self, parent=None):
+                    super(changer_page, self).__init__(parent)
+
+                    # Добавляем окна в QStackedWidget
+                    self.addWidget(self.menu)
+                    self.addWidget(self.gamewindow)
+
+                    # Устанавливаем текущее окно (меню)
+                    self.setCurrentIndex(0)
+
+                def change(self):
+                    if self.currentIndex() == 0:
+                        self.setCurrentIndex(1)  # Переходим к игровому окну
+                    else:
+                        self.setCurrentIndex(0)  # Переходим к меню
 
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = Ui_SecondaryWindows()
-    MainWindow.resize(1152, 864)
     MainWindow.setMinimumSize(1152, 864)
     MainWindow.Menu()
-
-    # Размещение окна по центру
-    screen_geometry = app.desktop().screenGeometry()
-    x = (screen_geometry.width() - MainWindow.width()) // 2
-    y = (screen_geometry.height() - MainWindow.height()) // 2
-    MainWindow.move(x, y)
-
-    MainWindow.showMaximized()
+    MainWindow.showFullScreen()
     app.exec_()
