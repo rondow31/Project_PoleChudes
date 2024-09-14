@@ -7,6 +7,7 @@ from generation_word import word_categories
 from dictionary import word_categories_dictionary
 from PyQt5.QtGui import QIcon
 import random
+import re
 
 
 class Menu_page(QWidget):
@@ -182,6 +183,7 @@ class GameWindow(QWidget):
         self.gridLayout_2.addWidget(self.label_host, 1, 2, 1, 1)
         self.label_category = QtWidgets.QLabel(self.frame_2)
         self.label_category.setWordWrap(True)
+        self.label_category.setAlignment(QtCore.Qt.AlignJustify)
         self.label_category.setFont(font)
         self.gridLayout_3.addWidget(self.label_category, 0, 0, 0, 0, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop)
         self.label_word = QtWidgets.QLabel(self.frame_2)
@@ -266,7 +268,7 @@ class GameWindow(QWidget):
         app.setStyleSheet('#label_2, #label_4{ border: 1px solid black}; #label{ font-size: 26pt}')
         self.restart_game()
 
-    def restart_game(self):
+    def restart_game(self):  #обновление окна
         # выбор случайной подсказки
         self.random_category = random.choice(list(word_categories.keys()))
         self.label_category.setText(f"<center><span style='font-size: 28pt;'>{self.random_category}</span></center>")
@@ -446,31 +448,31 @@ class GameWindow(QWidget):
         if self.input_locked:
             return
         letter = event.text().lower()
-        if letter in self.guessed_letters:
-            return
-        if letter.isalpha() and len(letter) == 1:
-            self.label_host.clear()
-            self.input_locked = True
-            self.user_letter(letter)
-            button = self.find_button_by_letter(letter)
-            if button:
-                self.clear_keyboard(button)
-            QTimer.singleShot(6000, self.clear_label_player)
-            if letter in self.random_word:
-                self.result = 1
-                QTimer.singleShot(6500, self.unlock_input)
-                QTimer.singleShot(2500, lambda: (self.there_letter(), QTimer.singleShot(3500, self.clear_label_host)))
-                QTimer.singleShot(5000, lambda: (self.there_letter(), self.update_hidden_word_delayed(letter)))
-                self.guessed_letters_in_word.append(letter)
-            else:
-                self.result = 0
-                QTimer.singleShot(3000,
-                                  lambda: (self.there_no_letter(), QTimer.singleShot(3000, self.clear_label_host)))
-                self.input_locked_bot = False
-                QTimer.singleShot(8000, self.guess_letter_one)
-                QTimer.singleShot(7000, self.first_bot)
+        if re.fullmatch(r'[а-я-ё]', letter):
+            if letter in self.guessed_letters:
+                return
+            if letter.isalpha() and len(letter) == 1:
+                self.label_host.clear()
+                self.input_locked = True
+                self.user_letter(letter)
+                button = self.find_button_by_letter(letter)
+                if button:
+                    self.clear_keyboard(button)
+                QTimer.singleShot(6000, self.clear_label_player)
+                if letter in self.random_word:
+                    self.result = 1
+                    QTimer.singleShot(6500, self.unlock_input)
+                    QTimer.singleShot(2500, lambda: (self.there_letter(), QTimer.singleShot(3500, self.clear_label_host)))
+                    QTimer.singleShot(5000, lambda: (self.there_letter(), self.update_hidden_word_delayed(letter)))
+                    self.guessed_letters_in_word.append(letter)
+                else:
+                    self.result = 0
+                    QTimer.singleShot(3000, lambda: (self.there_no_letter(), QTimer.singleShot(3000, self.clear_label_host)))
+                    self.input_locked_bot = False
+                    QTimer.singleShot(8000, self.guess_letter_one)
+                    QTimer.singleShot(7000, self.first_bot)
 
-    def find_button_by_letter(self, letter):
+    def find_button_by_letter(self, letter):     #функция для нахождения клавиши с выбранной буквой
         for i in range(3):
             for j in range(11):
                 button = self.gridLayout_4.itemAtPosition(i, j).widget()
@@ -478,7 +480,7 @@ class GameWindow(QWidget):
                     return button
         return None
 
-    def clear_keyboard(self, button):
+    def clear_keyboard(self, button):      #блокируем букву
         button.setEnabled(False)
 
     def update_hidden_word_delayed(self, letter):  # обновляем отображаемый пользователю текст загаданного слова
