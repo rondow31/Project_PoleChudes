@@ -279,7 +279,7 @@ class GameWindow(QWidget):
 
         self.label_word.setText(' '.join(self.hidden_word_display))  # установка скрытого слова в label
 
-        self.input_locked = False
+        self.unlock_input()
         self.label_host.clear()
         self.button_help.setEnabled(True)
         self.guessed_letters.clear()
