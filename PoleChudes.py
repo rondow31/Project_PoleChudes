@@ -243,8 +243,7 @@ class GameWindow(QWidget):
                 self.guessed_letters_in_word.append(letter)
             else:
                 self.result = 0
-                QTimer.singleShot(3000,
-                                  lambda: (self.there_no_letter(), QTimer.singleShot(3000, self.clear_label_host)))
+                QTimer.singleShot(3000, lambda: (self.there_no_letter(), QTimer.singleShot(3000, self.clear_label_host)))
                 self.input_locked_bot = False
                 QTimer.singleShot(7000, self.first_bot)
                 QTimer.singleShot(8000, self.guess_letter_one)
@@ -351,9 +350,9 @@ class GameWindow(QWidget):
         self.guessed_letters.append(letter)
         button = self.find_button_by_letter(letter)
         if button:
+            self.button_clicked_list.append(button)
             self.clear_keyboard(button)
         QTimer.singleShot(6000, self.clear_label_player)
-        self.button_clicked_list.append(button)
         if letter in self.random_word:
             QTimer.singleShot(2500, lambda: (self.there_letter(), QTimer.singleShot(3500, self.clear_label_host)))
             QTimer.singleShot(5000, lambda: (self.there_letter(), self.update_hidden_word_delayed(letter)))
@@ -397,9 +396,9 @@ class GameWindow(QWidget):
         self.guessed_letters.append(letter)
         button = self.find_button_by_letter(letter)
         if button:
+            self.button_clicked_list.append(button)
             self.clear_keyboard(button)
         QTimer.singleShot(6000, self.clear_label_player)
-        self.button_clicked_list.append(button)
         if letter in self.random_word:
             QTimer.singleShot(2500, lambda: (self.there_letter(), QTimer.singleShot(3500, self.clear_label_host)))
             QTimer.singleShot(5000, lambda: (self.there_letter(), self.update_hidden_word_delayed(letter)))
@@ -452,11 +451,13 @@ class GameWindow(QWidget):
             if letter in self.guessed_letters:
                 return
             if letter.isalpha() and len(letter) == 1:
+                self.guessed_letters.append(letter)
                 self.label_host.clear()
                 self.input_locked = True
                 self.user_letter(letter)
                 button = self.find_button_by_letter(letter)
                 if button:
+                    self.button_clicked_list.append(button)
                     self.clear_keyboard(button)
                 QTimer.singleShot(6000, self.clear_label_player)
                 if letter in self.random_word:
